@@ -1,0 +1,32 @@
+{
+    "terminology":{
+        "best_biomarker_role": [
+            "risk",
+            "diagnostic",
+            "monitoring",
+            "prognostic",
+            "predictive",
+            "response",
+            "safety"
+        ],
+        "assessed_entity_type":[
+            "DNA",
+            "protein complex",
+            "lipoprotein",
+            "protein",
+            "electrolyte",
+            "cell",
+            "lipid",
+            "oligosaccharide",
+            "miRNA",
+            "gene",
+            "metabolite",
+            "carbohydrate",
+            "glycan",
+            "chemical element",
+            "amino acide",
+            "peptide",
+            "RNA"
+        ]
+    }
+}
