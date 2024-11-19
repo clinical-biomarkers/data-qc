@@ -1,2 +1,4 @@
 dataset/
 *.tsv
+*.log
+__pycache__/
