@@ -37,12 +37,13 @@ def check_id_consistency(id_records):
 
 def normalize_row(row):
     """Normalize a row by stripping spaces and converting to lowercase."""
-    return {k: (v.strip().lower() if isinstance(v, str) else v) for k, v in row.items()}
+    return {k: (v.strip().lower() if isinstance(v, str) else (v if v is not None else '')) for k, v in row.items()}
 
 def check_duplicate_rows(seen_rows, row, row_num):
     """Flag duplicate rows."""
     normalized_row = normalize_row(row)  # Normalize the row
-    row_tuple = tuple(sorted(normalized_row.items()))  # Sort and convert to tuple for comparison
+#   row_tuple = tuple(sorted(normalized_row.items()))  # Sort and convert to tuple for comparison
+    row_tuple = tuple(sorted(normalized_row.items(), key=lambda x: x[0] or ''))
 
     if row_tuple in seen_rows:
         logging.warning(f"Row {row_num}: Duplicate row found.")
@@ -76,7 +77,7 @@ def main():
     parser = argparse.ArgumentParser(description='QC Script for Biomarker Data')
     parser.add_argument('--panel', action='store_true', help='Expect panel biomarkers')
     args = parser.parse_args()
-    input_file = 'dataset/oncomx.tsv' #write the correct path
+    input_file = 'dataset/microplastics_orig.tsv' #write the correct path
     id_records = defaultdict(list)
 #Initialize the set to track duplicate rows
     seen_rows = set()
