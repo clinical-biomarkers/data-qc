@@ -57,7 +57,7 @@ def title_case_resource(evidence_source , row_num):
 
 def validate_format(value, field_name, row_num):
     """Check if the value follows the 'resource:id' format."""
-    pattern = r"^\w+:\w+$"  # Regex for 'resource:id' format
+    pattern = r"^\w+:[\w-]+$" # Regex for 'resource:id' format
     if not re.match(pattern, value):
         logging.warning(
             f"Row {row_num}: Invalid format for '{field_name}'. "
