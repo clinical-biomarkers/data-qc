@@ -1,6 +1,7 @@
 ## Entry point for the script
 import logging
 import csv
+import glob
 import json
 import argparse
 from collections import defaultdict
@@ -17,7 +18,7 @@ logging.basicConfig(
 def check_id_consistency(id_records):
     '''Rows with same id must have consistent valeus'''
     fields_to_check = [
-        'biomarker',
+#       'biomarker',
         'assessed_biomarker_entity',
         'assessed_biomarker_entity_id',
         'assessed_entity_type',
@@ -51,10 +52,11 @@ def check_duplicate_rows(seen_rows, row, row_num):
         seen_rows.add(row_tuple)
 
 def process_row(row, row_num, seen_rows):
-    row['biomarker'] = lowercase_first_word(row.get('biomarker', ''), row_num)
+#   row['biomarker'] = lowercase_first_word(row.get('biomarker', ''), row_num)
     row['best_biomarker_role'] = format_roles(row.get('best_biomarker_role', ''), row_num)
     row['specimen'] = lowercase_specimen_field(row.get('specimen', ''), row_num)
-    row['evidence_source'] = title_case_resource(row.get('evidence_source', ''), row_num)
+    if not row.get('evidence_source', '').startswith('PubMed:'):
+        row['evidence_source'] = title_case_resource(row.get('evidence_source', ''), row_num)
     
     # Validate 'assessed_biomarker_entity_id' format
     validate_format(row.get('assessed_biomarker_entity_id', ''), 'assessed_biomarker_entity_id', row_num)
@@ -77,7 +79,10 @@ def main():
     parser = argparse.ArgumentParser(description='QC Script for Biomarker Data')
     parser.add_argument('--panel', action='store_true', help='Expect panel biomarkers')
     args = parser.parse_args()
-    input_file = 'dataset/microplastics_orig.tsv' #write the correct path
+    input_files = glob.glob('dataset/*.tsv')
+    input_file = input_files[0]
+    if not input_files:
+        raise FileNotFoundError("No TSV files found in dataset/")
     id_records = defaultdict(list)
 #Initialize the set to track duplicate rows
     seen_rows = set()
