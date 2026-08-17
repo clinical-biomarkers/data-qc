@@ -66,11 +66,12 @@ def process_row(row, row_num, seen_rows):
     if not row.get('evidence_source', '').startswith('PubMed:'):
         row['evidence_source'] = title_case_resource(row.get('evidence_source', ''), row_num)
     
-    # Validate 'assessed_biomarker_entity_id' format
-    validate_format(row.get('assessed_biomarker_entity_id', ''), 'assessed_biomarker_entity_id', row_num)
+    # Validate 'assessed_biomarker_entity_id' and 'condition_id' format
+    if row.get('assessed_biomarker_entity_id', ''):
+        validate_format(row.get('assessed_biomarker_entity_id', ''), 'assessed_biomarker_entity_id', row_num)
 
-    # Validate 'condition_id' format
-    validate_format(row.get('condition_id', ''), 'condition_id', row_num)
+    if row.get('condition_id', ''):
+        validate_format(row.get('condition_id', ''), 'condition_id', row_num)
 
     # Check for required fields and conditional logic
     check_required_fields(row, row_num)
