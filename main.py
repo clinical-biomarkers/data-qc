@@ -9,11 +9,19 @@ from qc_checks import (
     lowercase_first_word, format_roles, lowercase_specimen_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology
 )
 #  logging configuration
-logging.basicConfig(
-    filename='qc_report.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-) 
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+dev_logger = logging.getLogger('dev')
+dev_logger.setLevel(logging.INFO)
+dev_handler = logging.FileHandler('dev_debug.log')
+dev_handler.setFormatter(formatter)
+dev_logger.addHandler(dev_handler)
+
+data_logger = logging.getLogger('data_qc')
+data_logger.setLevel(logging.INFO)
+data_handler = logging.FileHandler('qc_report.log')
+data_handler.setFormatter(formatter)
+data_logger.addHandler(data_handler)
 
 def check_id_consistency(id_records):
     '''Rows with same id must have consistent values'''
@@ -96,7 +104,7 @@ def main():
                 id_records[row['biomarker_id']].append(row)
     if not args.panel:
         check_id_consistency(id_records)
-    print("QC process completed. Check 'qc_report.log' for details.")
+    print("QC process completed. Check 'qc_report.log' and 'dev_debug.log' for details.")
 
 if __name__ == "__main__":
     main()
