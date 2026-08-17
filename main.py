@@ -16,7 +16,7 @@ logging.basicConfig(
 ) 
 
 def check_id_consistency(id_records):
-    '''Rows with same id must have consistent valeus'''
+    '''Rows with same id must have consistent values'''
     fields_to_check = [
 #       'biomarker',
         'assessed_biomarker_entity',
