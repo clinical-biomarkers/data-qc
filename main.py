@@ -95,7 +95,7 @@ def main():
     id_records = defaultdict(list)
 #Initialize the set to track duplicate rows
     seen_rows = set()
-    with open(input_file, mode='r') as file:
+    with open(input_file, mode='r', encoding='cp1252') as file:
         reader = csv.DictReader(file, delimiter='\t')
         for row_num, row in enumerate(reader, start=1):
             process_row(row, row_num, seen_rows)
