@@ -7,7 +7,7 @@ import json
 dev_logger = logging.getLogger('dev')
 data_logger = logging.getLogger('data_qc')
 
-def lowercase_first_word(text , row_num):
+def lowercase_first_word(text, row_num):
     #"""the first word of the text should be lowercase."""
     if text and text[0].isupper():
         new_text = text[0].lower() + text[1:]
@@ -17,7 +17,7 @@ def lowercase_first_word(text , row_num):
 
     return text
 
-def format_roles(role_field , row_num):
+def format_roles(role_field, row_num):
     if ';' in role_field:
         roles= role_field.split(';')
 
@@ -80,7 +80,7 @@ def check_all_headers(row, row_num):
 
 #  required fields
 REQUIRED_FIELDS = [
-    'biomarker_controlled_vocab', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
+    'biomarker', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
     'assessed_entity_type'
 ]
 
@@ -123,7 +123,7 @@ def validate_terminology(value, field_name, row_num):
     """Checking if the value matches the allowed terminology."""
     allowed_values = terminology.get(field_name, [])
     if value not in allowed_values:
-        logging.getLogger('dev').warning(
+        logging.getLogger('data_qc').warning(
             f"Row {row_num}: Invalid value for '{field_name}'. "
             f"Found '{value}', expected one of {allowed_values}."
         )
