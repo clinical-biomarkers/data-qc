@@ -57,7 +57,7 @@ def validate_format(value, field_name, row_num):
     """Check if the value follows the 'resource:id' format."""
     pattern = r"^\w+:[\w-]+$" # Regex for 'resource:id' format
     if not re.match(pattern, value):
-        logging.getLogger('dev').warning(
+        logging.getLogger('data_qc').warning(
             f"Row {row_num}: Invalid format for '{field_name}'. "
             f"Found '{value}', expected 'resource:id' format."
         )
@@ -72,7 +72,7 @@ def check_required_fields(row, row_num):
     """ all required fields must be present."""
     for field in REQUIRED_FIELDS:
         if not row.get(field):
-            logging.getLogger('dev').warning(f"Row {row_num}: Missing required field '{field}'.")
+            logging.getLogger('data_qc').warning(f"Row {row_num}: Missing required field '{field}'.")
 
 def check_conditional_logic(row, row_num):
     """Check conditional presence of exposure and condition fields."""

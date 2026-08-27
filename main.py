@@ -102,7 +102,7 @@ def main():
 
         #If panel biomarkers are not expected, store rows by ID for consistency check
             if not args.panel:
-                id_records[row['biomarker_id']].append(row)
+                id_records[row['biomarker_index']].append(row)
     if not args.panel:
         check_id_consistency(id_records)
     print("QC process completed. Check 'qc_report.log' and 'dev_debug.log' for details.")
