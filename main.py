@@ -6,7 +6,7 @@ import json
 import argparse
 from collections import defaultdict
 from qc_checks import (
-    lowercase_first_word, format_roles, lowercase_specimen_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology
+    lowercase_first_word, format_roles, lowercase_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology
 )
 #  logging configuration
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -60,9 +60,10 @@ def check_duplicate_rows(seen_rows, row, row_num):
         seen_rows.add(row_tuple)
 
 def process_row(row, row_num, seen_rows):
-#   row['biomarker'] = lowercase_first_word(row.get('biomarker', ''), row_num)
+    row['biomarker'] = lowercase_first_word(row.get('biomarker', ''), row_num)
     row['best_biomarker_role'] = format_roles(row.get('best_biomarker_role', ''), row_num)
-    row['specimen'] = lowercase_specimen_field(row.get('specimen', ''), row_num)
+    row['specimen'] = lowercase_field(row.get('specimen', ''), 'specimen', row_num)
+    row['condition'] = lowercase_field(row.get('condition', ''), 'condition', row_num)
     if not row.get('evidence_source', '').startswith('PubMed:'):
         row['evidence_source'] = title_case_resource(row.get('evidence_source', ''), row_num)
     
