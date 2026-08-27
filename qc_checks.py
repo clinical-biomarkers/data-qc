@@ -44,9 +44,11 @@ def lowercase_specimen_field(specimen, row_num):
         
     return specimen
 
-def title_case_resource(evidence_source , row_num):
+def title_case_resource(evidence_source, row_num):
     if ':' in evidence_source:
         before_colon, after_colon = evidence_source.split(':', 1)
+        if before_colon in known_evidence_sources:
+            return evidence_source
         new_resource = f"{before_colon.title()}:{after_colon.strip()}"
         if evidence_source != new_resource:
             logging.getLogger('dev').warning(f"Row {row_num}: 'evidence_source' must be corrected to '{new_resource}'")
@@ -61,6 +63,20 @@ def validate_format(value, field_name, row_num):
             f"Row {row_num}: Invalid format for '{field_name}'. "
             f"Found '{value}', expected 'resource:id' format."
         )
+
+#  required headers
+ALL_EXPECTED_HEADERS = [
+    'biomarker_index', 'component_index', 'entity_index', 'biomarker', 'biomarker_controlled_vocab', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
+    'assessed_entity_type', 'best_biomarker_role', 'specimen', 'specimen_id', 'loinc_code', 'evidence_source', 'evidence',
+    'condition', 'condition_id', 'exposure_agent', 'exposure_agent_id', 'tag', 'change_type_vocab', 'aspect_type_vocab', 'mod_type_vocab'
+]
+
+def check_all_headers(row, row_num):
+    """Ensure all expected headers are present in the row; add missing ones as empty."""
+    for header in ALL_EXPECTED_HEADERS:
+        if header not in row:
+            row[header] = ''
+            logging.getLogger('dev').warning(f"Row {row_num}: Missing header '{header}', added as empty.")
 
 #  required fields
 REQUIRED_FIELDS = [
@@ -86,12 +102,13 @@ def check_conditional_logic(row, row_num):
             f"or both 'condition' and 'condition_id' must be present."
         )
 
-# Load terminology from JSON configuration
+# Load terminology and known_evidence_sources from JSON configuration
 def load_terminology():
     """Load terminology from JSON configuration."""
     try:
         with open('config.json', 'r', encoding='utf-8') as f:
-            return json.load(f)['terminology']
+            config = json.load(f)
+            return config['terminology'], config.get('known_evidence_sources', [])
     except json.JSONDecodeError as e:
         logging.error(f"Failed to load JSON: {e}")
         raise SystemExit("Invalid JSON format.  check 'config.json'.")
@@ -100,7 +117,7 @@ def load_terminology():
         raise SystemExit("Configuration file 'config.json' is missing.")
 
 # Call the load function during setup
-terminology = load_terminology()
+terminology, known_evidence_sources = load_terminology()
 
 def validate_terminology(value, field_name, row_num):
     """Checking if the value matches the allowed terminology."""
