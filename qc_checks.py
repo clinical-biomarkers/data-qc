@@ -65,7 +65,7 @@ def validate_format(value, field_name, row_num):
 #  required fields
 REQUIRED_FIELDS = [
     'biomarker_controlled_vocab', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
-    'assessed_entity_type', 'best_biomarker_role'
+    'assessed_entity_type'
 ]
 
 def check_required_fields(row, row_num):
