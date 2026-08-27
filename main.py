@@ -92,16 +92,21 @@ def main():
     parser.add_argument('--panel', action='store_true', help='Expect panel biomarkers')
     args = parser.parse_args()
     input_files = glob.glob('dataset/*.tsv')
-    input_file = input_files[0]
     if not input_files:
         raise FileNotFoundError("No TSV files found in dataset/")
+    input_file = input_files[0]
+    output_file = 'dataset/corrected_output.tsv'
     id_records = defaultdict(list)
 #Initialize the set to track duplicate rows
     seen_rows = set()
-    with open(input_file, mode='r', encoding='cp1252') as file:
-        reader = csv.DictReader(file, delimiter='\t')
+    with open(input_file, mode='r', encoding='cp1252') as infile, \
+         open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
+        reader = csv.DictReader(infile, delimiter='\t')
+        writer = csv.DictWriter(outfile, fieldnames=reader.fieldnames, delimiter='\t')
+        writer.writeheader()
         for row_num, row in enumerate(reader, start=1):
             process_row(row, row_num, seen_rows)
+            writer.writerow(row)
 
         #If panel biomarkers are not expected, store rows by ID for consistency check
             if not args.panel:
