@@ -1,6 +1,7 @@
 ## Entry point for the script
 import logging
 import csv
+import glob
 import json
 import argparse
 from collections import defaultdict
@@ -8,16 +9,24 @@ from qc_checks import (
     lowercase_first_word, format_roles, lowercase_specimen_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology
 )
 #  logging configuration
-logging.basicConfig(
-    filename='qc_report.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-) 
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+dev_logger = logging.getLogger('dev')
+dev_logger.setLevel(logging.INFO)
+dev_handler = logging.FileHandler('dev_debug.log')
+dev_handler.setFormatter(formatter)
+dev_logger.addHandler(dev_handler)
+
+data_logger = logging.getLogger('data_qc')
+data_logger.setLevel(logging.INFO)
+data_handler = logging.FileHandler('qc_report.log')
+data_handler.setFormatter(formatter)
+data_logger.addHandler(data_handler)
 
 def check_id_consistency(id_records):
-    '''Rows with same id must have consistent valeus'''
+    '''Rows with same id must have consistent values'''
     fields_to_check = [
-        'biomarker',
+#       'biomarker',
         'assessed_biomarker_entity',
         'assessed_biomarker_entity_id',
         'assessed_entity_type',
@@ -51,16 +60,18 @@ def check_duplicate_rows(seen_rows, row, row_num):
         seen_rows.add(row_tuple)
 
 def process_row(row, row_num, seen_rows):
-    row['biomarker'] = lowercase_first_word(row.get('biomarker', ''), row_num)
+#   row['biomarker'] = lowercase_first_word(row.get('biomarker', ''), row_num)
     row['best_biomarker_role'] = format_roles(row.get('best_biomarker_role', ''), row_num)
     row['specimen'] = lowercase_specimen_field(row.get('specimen', ''), row_num)
-    row['evidence_source'] = title_case_resource(row.get('evidence_source', ''), row_num)
+    if not row.get('evidence_source', '').startswith('PubMed:'):
+        row['evidence_source'] = title_case_resource(row.get('evidence_source', ''), row_num)
     
-    # Validate 'assessed_biomarker_entity_id' format
-    validate_format(row.get('assessed_biomarker_entity_id', ''), 'assessed_biomarker_entity_id', row_num)
+    # Validate 'assessed_biomarker_entity_id' and 'condition_id' format
+    if row.get('assessed_biomarker_entity_id', ''):
+        validate_format(row.get('assessed_biomarker_entity_id', ''), 'assessed_biomarker_entity_id', row_num)
 
-    # Validate 'condition_id' format
-    validate_format(row.get('condition_id', ''), 'condition_id', row_num)
+    if row.get('condition_id', ''):
+        validate_format(row.get('condition_id', ''), 'condition_id', row_num)
 
     # Check for required fields and conditional logic
     check_required_fields(row, row_num)
@@ -77,7 +88,10 @@ def main():
     parser = argparse.ArgumentParser(description='QC Script for Biomarker Data')
     parser.add_argument('--panel', action='store_true', help='Expect panel biomarkers')
     args = parser.parse_args()
-    input_file = 'dataset/microplastics_orig.tsv' #write the correct path
+    input_files = glob.glob('dataset/*.tsv')
+    input_file = input_files[0]
+    if not input_files:
+        raise FileNotFoundError("No TSV files found in dataset/")
     id_records = defaultdict(list)
 #Initialize the set to track duplicate rows
     seen_rows = set()
@@ -88,10 +102,10 @@ def main():
 
         #If panel biomarkers are not expected, store rows by ID for consistency check
             if not args.panel:
-                id_records[row['biomarker_id']].append(row)
+                id_records[row['biomarker_index']].append(row)
     if not args.panel:
         check_id_consistency(id_records)
-    print("QC process completed. Check 'qc_report.log' for details.")
+    print("QC process completed. Check 'qc_report.log' and 'dev_debug.log' for details.")
 
 if __name__ == "__main__":
     main()
