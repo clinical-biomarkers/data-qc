@@ -45,14 +45,22 @@ def lowercase_specimen_field(specimen, row_num):
     return specimen
 
 def title_case_resource(evidence_source, row_num):
+    # Bare numeric string: assume PubMed
+    if evidence_source and ':' not in evidence_source and evidence_source.strip().isdigit():
+        new_resource = f"PubMed:{evidence_source.strip()}"
+        logging.getLogger('dev').warning(f"Row {row_num}: 'evidence_source' missing resource, corrected to '{new_resource}'")
+        return new_resource
+
     if ':' in evidence_source:
         before_colon, after_colon = evidence_source.split(':', 1)
+        after_colon = after_colon.strip()  # strips whitespace after colon
         if before_colon in known_evidence_sources:
-            return evidence_source
-        new_resource = f"{before_colon.title()}:{after_colon.strip()}"
+            return f"{before_colon}:{after_colon}"
+        new_resource = f"{before_colon.title()}:{after_colon}"
         if evidence_source != new_resource:
             logging.getLogger('dev').warning(f"Row {row_num}: 'evidence_source' must be corrected to '{new_resource}'")
         return new_resource
+
     return evidence_source
 
 def validate_format(value, field_name, row_num):

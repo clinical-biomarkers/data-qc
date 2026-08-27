@@ -39,7 +39,7 @@ def check_id_consistency(id_records):
         for row in rows[1:]:
             for field in fields_to_check:
                 if row[field] != reference[field]:
-                    logging.warning(
+                    logging.getLogger('data_qc').warning(
                         f"ID {id}: Inconsistent value for '{field}'. "
                         f"Expected '{reference[field]}', found '{row[field]}'."
                     )
@@ -55,7 +55,7 @@ def check_duplicate_rows(seen_rows, row, row_num):
     row_tuple = tuple(sorted(normalized_row.items(), key=lambda x: x[0] or ''))
 
     if row_tuple in seen_rows:
-        logging.warning(f"Row {row_num}: Duplicate row found.")
+        logging.getLogger('data_qc').warning(f"Row {row_num}: Duplicate row found.")
     else:
         seen_rows.add(row_tuple)
 
@@ -72,6 +72,9 @@ def process_row(row, row_num, seen_rows):
 
     if row.get('condition_id', ''):
         validate_format(row.get('condition_id', ''), 'condition_id', row_num)
+
+    if row.get('evidence_source', ''):
+        validate_format(row.get('evidence_source', ''), 'evidence_source', row_num)
 
     # Check for required fields and conditional logic
     check_required_fields(row, row_num)
