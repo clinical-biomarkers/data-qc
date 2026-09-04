@@ -73,7 +73,7 @@ def validate_format(value, field_name, row_num):
 ALL_EXPECTED_HEADERS = [
     'biomarker_index', 'component_index', 'entity_index', 'biomarker', 'biomarker_controlled_vocab', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
     'assessed_entity_type', 'best_biomarker_role', 'specimen', 'specimen_id', 'loinc_code', 'evidence_source', 'evidence',
-    'condition', 'condition_id', 'exposure_agent', 'exposure_agent_id', 'tag', 'change_type_vocab', 'aspect_type_vocab', 'mod_type_vocab'
+    'condition', 'condition_id', 'exposure_agent', 'exposure_agent_id', 'tag'
 ]
 
 def check_all_headers(row, row_num):
