@@ -73,7 +73,7 @@ def validate_format(value, field_name, row_num):
 ALL_EXPECTED_HEADERS = [
     'biomarker_index', 'component_index', 'entity_index', 'biomarker', 'biomarker_controlled_vocab', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
     'assessed_entity_type', 'best_biomarker_role', 'specimen', 'specimen_id', 'loinc_code', 'evidence_source', 'evidence',
-    'condition', 'condition_id', 'exposure_agent', 'exposure_agent_id', 'tag', 'change_type_vocab', 'aspect_type_vocab', 'mod_type_vocab'
+    'condition', 'condition_id', 'exposure_agent', 'exposure_agent_id', 'tag'
 ]
 
 def check_all_headers(row, row_num):
@@ -94,6 +94,17 @@ def check_required_fields(row, row_num):
     for field in REQUIRED_FIELDS:
         if not row.get(field):
             logging.getLogger('data_qc').warning(f"Row {row_num}: Missing required field '{field}'.")
+
+def validate_biomarker_index(value, row_num):
+    """Check if biomarker_index is a valid integer."""
+    if value is not None and value != '':
+        try:
+            int(value)
+        except (ValueError, TypeError):
+            logging.getLogger('data_qc').warning(
+                f"Row {row_num}: Invalid value for 'biomarker_index'. "
+                f"Found '{value}', expected an integer."
+            )
 
 def check_conditional_logic(row, row_num):
     """Check conditional presence of exposure and condition fields."""
