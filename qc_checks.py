@@ -7,6 +7,7 @@ import json
 dev_logger = logging.getLogger('dev')
 data_logger = logging.getLogger('data_qc')
 
+"""deprecated (handled downstream)
 def lowercase_first_word(text, row_num):
     #"""the first word of the text should be lowercase."""
     if text and text[0].isupper():
@@ -16,22 +17,37 @@ def lowercase_first_word(text, row_num):
 
 
     return text
+"""
+
+ROLE_ALIASES = {
+    "susceptibility": "risk",
+}
 
 def format_roles(role_field, row_num):
     if ';' in role_field:
-        roles= role_field.split(';')
-
+        roles = role_field.split(';')
     else:
         roles = [role_field]
 
-    # Format each role to be lowercase and stripped of leading/trailing spaces
-    formatted_roles = [role.strip().lower() for role in roles]
+    formatted_roles = []
+    for role in roles:
+        role = role.strip().lower()
+        if role in ROLE_ALIASES:
+            canonical = ROLE_ALIASES[role]
+            logging.getLogger('dev').warning(
+                f"Row {row_num}: 'best_biomarker_role' value '{role}' "
+                f"replaced with canonical term '{canonical}'"
+            )
+            role = canonical
+        formatted_roles.append(role)
 
-    if role_field != ';'.join(formatted_roles):
-        logging.getLogger('dev').warning(f"Row {row_num}: Field 'best_biomarker_role' must be corrected to '{';'.join(formatted_roles)}'")
+    result = ';'.join(formatted_roles)
+    if role_field != result:
+        logging.getLogger('dev').warning(
+            f"Row {row_num}: Field 'best_biomarker_role' must be corrected to '{result}'"
+        )
 
-    
-    return ';'.join(formatted_roles)
+    return result
 
 def lowercase_field(value, field_name, row_num):
     if value:
