@@ -134,6 +134,18 @@ def check_conditional_logic(row, row_num):
             f"or both 'condition' and 'condition_id' must be present."
         )
 
+def check_specimen_pair(row, row_num):
+    """If specimen or specimen_id is present, both must be present."""
+    specimen_present = bool(row.get('specimen'))
+    specimen_id_present = bool(row.get('specimen_id'))
+
+    if specimen_present != specimen_id_present:
+        missing = 'specimen_id' if specimen_present else 'specimen'
+        logging.getLogger('data_qc').warning(
+            f"Row {row_num}: 'specimen' and 'specimen_id' must both be present or both be absent. "
+            f"Missing '{missing}'."
+        )
+
 # Load terminology and known_evidence_sources from JSON configuration
 def load_terminology():
     """Load terminology from JSON configuration."""
