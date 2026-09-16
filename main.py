@@ -6,7 +6,7 @@ import json
 import argparse
 from collections import defaultdict
 from qc_checks import (
-    format_roles, lowercase_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology, validate_biomarker_index
+    format_roles, lowercase_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology, validate_biomarker_index, check_specimen_pair
 )
 #  logging configuration
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -19,7 +19,7 @@ dev_logger.addHandler(dev_handler)
 
 data_logger = logging.getLogger('data_qc')
 data_logger.setLevel(logging.INFO)
-data_handler = logging.FileHandler('qc_report.log')
+data_handler = logging.FileHandler('report.log')
 data_handler.setFormatter(formatter)
 data_logger.addHandler(data_handler)
 
@@ -59,7 +59,10 @@ def check_duplicate_rows(seen_rows, row, row_num):
     else:
         seen_rows.add(row_tuple)
 
-def process_row(row, row_num, seen_rows):
+def process_row(row, row_num, seen_rows, biomarker_index_map):
+    row['biomarker_index'] = validate_biomarker_index(
+        row.get('biomarker_index', ''), row_num, biomarker_index_map
+    )
     row['best_biomarker_role'] = format_roles(row.get('best_biomarker_role', ''), row_num)
     row['specimen'] = lowercase_field(row.get('specimen', ''), 'specimen', row_num)
     row['condition'] = lowercase_field(row.get('condition', ''), 'condition', row_num)
@@ -79,7 +82,7 @@ def process_row(row, row_num, seen_rows):
     # Check for required fields and conditional logic
     check_required_fields(row, row_num)
     check_conditional_logic(row, row_num)
-    validate_biomarker_index(row.get('biomarker_index', ''), row_num)
+    check_specimen_pair(row, row_num)
 
     # Validate terminology for below fields
     validate_terminology(row.get('best_biomarker_role', ''), 'best_biomarker_role', row_num)
@@ -100,13 +103,32 @@ def main():
     id_records = defaultdict(list)
 #Initialize the set to track duplicate rows
     seen_rows = set()
+    biomarker_index_map = {}
     with open(input_file, mode='r', encoding='latin-1') as infile, \
          open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
         reader = csv.DictReader(infile, delimiter='\t')
-        writer = csv.DictWriter(outfile, fieldnames=reader.fieldnames, delimiter='\t')
+
+        # Handle missing 'biomarker' column before processing rows
+        fieldnames = list(reader.fieldnames)
+        if 'biomarker' not in fieldnames:
+            if 'biomarker_controlled_vocab' in fieldnames:
+                idx = fieldnames.index('biomarker_controlled_vocab')
+                fieldnames.insert(idx, 'biomarker')   # insert before its source column
+                logging.getLogger('dev').warning(
+                    "'biomarker' column missing; duplicated from 'biomarker_controlled_vocab'."
+                )
+            else:
+                fieldnames.append('biomarker')
+                logging.getLogger('dev').warning(
+                    "'biomarker' column missing and 'biomarker_controlled_vocab' unavailable; added as empty."
+                )
+
+        writer = csv.DictWriter(outfile, fieldnames=fieldnames, delimiter='\t')
         writer.writeheader()
         for row_num, row in enumerate(reader, start=1):
-            process_row(row, row_num, seen_rows)
+            if 'biomarker' not in row:
+                row['biomarker'] = row.get('biomarker_controlled_vocab', '')
+            process_row(row, row_num, seen_rows, biomarker_index_map)
             writer.writerow(row)
 
         #If panel biomarkers are not expected, store rows by ID for consistency check
@@ -114,7 +136,7 @@ def main():
                 id_records[row['biomarker_index']].append(row)
     if not args.panel:
         check_id_consistency(id_records)
-    print("QC process completed. Check 'qc_report.log' and 'dev_debug.log' for details.")
+    print("QC process completed. Check 'report.log' and 'dev_debug.log' for details.")
 
 if __name__ == "__main__":
     main()
