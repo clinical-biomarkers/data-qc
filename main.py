@@ -107,9 +107,27 @@ def main():
     with open(input_file, mode='r', encoding='latin-1') as infile, \
          open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
         reader = csv.DictReader(infile, delimiter='\t')
-        writer = csv.DictWriter(outfile, fieldnames=reader.fieldnames, delimiter='\t')
+
+        # Handle missing 'biomarker' column before processing rows
+        fieldnames = list(reader.fieldnames)
+        if 'biomarker' not in fieldnames:
+            if 'biomarker_controlled_vocab' in fieldnames:
+                idx = fieldnames.index('biomarker_controlled_vocab')
+                fieldnames.insert(idx, 'biomarker')   # insert before its source column
+                logging.getLogger('dev').warning(
+                    "'biomarker' column missing; duplicated from 'biomarker_controlled_vocab'."
+                )
+            else:
+                fieldnames.append('biomarker')
+                logging.getLogger('dev').warning(
+                    "'biomarker' column missing and 'biomarker_controlled_vocab' unavailable; added as empty."
+                )
+
+        writer = csv.DictWriter(outfile, fieldnames=fieldnames, delimiter='\t')
         writer.writeheader()
         for row_num, row in enumerate(reader, start=1):
+            if 'biomarker' not in row:
+                row['biomarker'] = row.get('biomarker_controlled_vocab', '')
             process_row(row, row_num, seen_rows, biomarker_index_map)
             writer.writerow(row)
 
