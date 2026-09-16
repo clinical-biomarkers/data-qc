@@ -100,7 +100,7 @@ def main():
     id_records = defaultdict(list)
 #Initialize the set to track duplicate rows
     seen_rows = set()
-    with open(input_file, mode='r', encoding='cp1252') as infile, \
+    with open(input_file, mode='r', encoding='latin-1') as infile, \
          open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
         reader = csv.DictReader(infile, delimiter='\t')
         writer = csv.DictWriter(outfile, fieldnames=reader.fieldnames, delimiter='\t')

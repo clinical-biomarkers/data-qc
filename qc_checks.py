@@ -9,7 +9,7 @@ data_logger = logging.getLogger('data_qc')
 
 """deprecated (handled downstream)
 def lowercase_first_word(text, row_num):
-    #"""the first word of the text should be lowercase."""
+    #the first word of the text should be lowercase.
     if text and text[0].isupper():
         new_text = text[0].lower() + text[1:]
         logging.getLogger('dev').warning(f"Row {row_num}: Field 'biomarker' must be corrected to '{new_text}'")
