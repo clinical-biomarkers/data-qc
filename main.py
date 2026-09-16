@@ -6,7 +6,7 @@ import json
 import argparse
 from collections import defaultdict
 from qc_checks import (
-    lowercase_first_word, format_roles, lowercase_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology, validate_biomarker_index
+    format_roles, lowercase_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology, validate_biomarker_index
 )
 #  logging configuration
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -60,7 +60,6 @@ def check_duplicate_rows(seen_rows, row, row_num):
         seen_rows.add(row_tuple)
 
 def process_row(row, row_num, seen_rows):
-    row['biomarker'] = lowercase_first_word(row.get('biomarker', ''), row_num)
     row['best_biomarker_role'] = format_roles(row.get('best_biomarker_role', ''), row_num)
     row['specimen'] = lowercase_field(row.get('specimen', ''), 'specimen', row_num)
     row['condition'] = lowercase_field(row.get('condition', ''), 'condition', row_num)
@@ -101,7 +100,7 @@ def main():
     id_records = defaultdict(list)
 #Initialize the set to track duplicate rows
     seen_rows = set()
-    with open(input_file, mode='r', encoding='cp1252') as infile, \
+    with open(input_file, mode='r', encoding='latin-1') as infile, \
          open(output_file, mode='w', newline='', encoding='utf-8') as outfile:
         reader = csv.DictReader(infile, delimiter='\t')
         writer = csv.DictWriter(outfile, fieldnames=reader.fieldnames, delimiter='\t')
