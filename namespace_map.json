@@ -92,7 +92,7 @@
   "uberon": {
     "full_name": "uber-anatomy ontology",
     "display_name": "Uberon",
-    "api_endpoint": null,
+    "api_endpoint": "https://www.ebi.ac.uk/ols4/api/ontologies/uberon/terms?iri=http://purl.obolibrary.org/obo/UBERON_{id}",
     "rate_limit": null,
     "url_template": "http://purl.obolibrary.org/obo/UBERON_{id}",
     "cache": null,

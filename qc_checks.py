@@ -75,11 +75,6 @@ def format_roles(role_field, row_num):
         formatted_roles.append(role)
 
     result = ';'.join(formatted_roles)
-    if role_field != result:
-        dev_logger.warning(
-            f"Row {row_num}: Field 'best_biomarker_role' must be corrected to '{result}'"
-        )
-
     return result
 
 def lowercase_field(value, field_name, row_num):
@@ -175,16 +170,9 @@ def validate_terminology(value, field_name, row_num):
             f"Found '{value}', expected one of {allowed_values}."
         )
 
-def validate_specimen_name(specimen: str, specimen_id: str, row_num: int) -> None:
-    """Validate specimen name against the recommended name from the ontology API.
-    
-    Only runs for resources that have an api_endpoint in namespace_map.json.
-    Results are cached in-memory to avoid redundant API calls across rows.
-    """
-    if not specimen or not specimen_id:
-        return
-    if ':' not in specimen_id:
-        return
+def validate_specimen_name(specimen: str, specimen_id: str, row_num: int) -> str:
+    if not specimen or not specimen_id or ':' not in specimen_id:
+        return specimen
 
     resource, accession = specimen_id.split(':', 1)
     resource = resource.strip().lower()
@@ -192,7 +180,7 @@ def validate_specimen_name(specimen: str, specimen_id: str, row_num: int) -> Non
 
     resource_data = namespace_map.get(resource)
     if not resource_data or not resource_data.get('api_endpoint'):
-        return
+        return specimen
 
     cache_key = f"{resource}:{accession}"
     if cache_key in _api_cache:
@@ -204,20 +192,19 @@ def validate_specimen_name(specimen: str, specimen_id: str, row_num: int) -> Non
             response.raise_for_status()
             terms = response.json().get('_embedded', {}).get('terms', [])
             if not terms:
-                dev_logger.warning(
-                    f"Row {row_num}: No terms found in API response for specimen_id '{specimen_id}'"
-                )
-                return
+                dev_logger.warning(f"Row {row_num}: No terms found in API response for '{specimen_id}'")
+                return specimen
             recommended_name = terms[0].get('label', '').lower()
             _api_cache[cache_key] = recommended_name
         except Exception as e:
-            dev_logger.warning(
-                f"Row {row_num}: Could not fetch recommended name for '{specimen_id}': {e}"
-            )
-            return
+            dev_logger.warning(f"Row {row_num}: Could not fetch recommended name for '{specimen_id}': {e}")
+            return specimen
 
-    if specimen.lower() != recommended_name:
-        data_logger.warning(
-            f"Row {row_num}: 'specimen' value '{specimen}' does not match "
-            f"recommended name '{recommended_name}' for '{specimen_id}'."
+    if specimen != recommended_name:
+        log_once(
+            dev_logger,
+            f"'specimen' corrected from '{specimen}' to '{recommended_name}'"
         )
+        return recommended_name
+
+    return specimen

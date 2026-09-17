@@ -52,7 +52,7 @@ def process_row(row, row_num, seen_rows, biomarker_index_map):
         row.get('biomarker_index', ''), row_num, biomarker_index_map
     )
     row['best_biomarker_role'] = format_roles(row.get('best_biomarker_role', ''), row_num)
-    row['specimen'] = lowercase_field(row.get('specimen', ''), 'specimen', row_num)
+    row['specimen'] = row.get('specimen', '').strip().lower()
     row['condition'] = lowercase_field(row.get('condition', ''), 'condition', row_num)
     if not row.get('evidence_source', '').startswith('PubMed:'):
         row['evidence_source'] = title_case_resource(row.get('evidence_source', ''), row_num)
@@ -71,7 +71,9 @@ def process_row(row, row_num, seen_rows, biomarker_index_map):
     check_required_fields(row, row_num)
     check_conditional_logic(row, row_num)
     check_specimen_pair(row, row_num)
-    validate_specimen_name(row.get('specimen', ''), row.get('specimen_id', ''), row_num)
+    row['specimen'] = validate_specimen_name(
+        row.get('specimen', ''), row.get('specimen_id', ''), row_num
+    )
 
     # Validate terminology for below fields
     validate_terminology(row.get('best_biomarker_role', ''), 'best_biomarker_role', row_num)
