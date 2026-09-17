@@ -26,6 +26,19 @@ def load_namespace_map() -> dict:
         dev_logger.warning(f"Could not load namespace_map.json: {e}")
         return {}
 
+def load_terminology():
+    """Load terminology from JSON configuration."""
+    try:
+        with open('config.json', 'r', encoding='utf-8') as f:
+            config = json.load(f)
+            return config['terminology'], config.get('known_evidence_sources', [])
+    except json.JSONDecodeError as e:
+        dev_logger.error(f"Failed to load JSON: {e}")
+        raise SystemExit("Invalid JSON format.  check 'config.json'.")
+    except FileNotFoundError:
+        dev_logger.error("config.json not found.")
+        raise SystemExit("Configuration file 'config.json' is missing.")
+
 namespace_map = load_namespace_map()
 terminology, known_evidence_sources = load_terminology()
 
@@ -41,13 +54,12 @@ REQUIRED_FIELDS = [
     'biomarker', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
     'assessed_entity_type'
 ]
-
 _api_cache: dict[str, str] = {}  # keyed by "resource:accession"
 
 def format_roles(role_field, row_num):
     if ';' in role_field:
         roles = role_field.split(';')
-
+    else:
         roles = [role_field]
 
     formatted_roles = []
@@ -115,7 +127,7 @@ def check_all_headers(row, row_num):
 
 def check_required_fields(row, row_num):
     """ all required fields must be present."""
-    for field in 
+    for field in REQUIRED_FIELDS:
         if not row.get(field):
             data_logger.warning(f"Row {row_num}: Missing required field '{field}'.")
 
@@ -127,7 +139,7 @@ def validate_biomarker_index(value, row_num, index_map):
         index_map[value] = len(index_map) + 1
     new_value = str(index_map[value])
     if value != new_value:
-        log_once(dev_logger, f"'biomarker_index' corrected from '{value}' to '{new_value}'.")
+        log_once(dev_logger, "'biomarker_index' values corrected from original IDs to sequential integers.")
     return new_value
 
 def check_conditional_logic(row, row_num):
@@ -153,20 +165,6 @@ def check_specimen_pair(row, row_num):
             f"Row {row_num}: 'specimen' and 'specimen_id' must both be present or both be absent. "
             f"Missing '{missing}'."
         )
-
-# Load terminology and known_evidence_sources from JSON configuration
-def load_terminology():
-    """Load terminology from JSON configuration."""
-    try:
-        with open('config.json', 'r', encoding='utf-8') as f:
-            config = json.load(f)
-            return config['terminology'], config.get('known_evidence_sources', [])
-    except json.JSONDecodeError as e:
-        dev_logger.error(f"Failed to load JSON: {e}")
-        raise SystemExit("Invalid JSON format.  check 'config.json'.")
-    except FileNotFoundError:
-        dev_logger.error("config.json not found.")
-        raise SystemExit("Configuration file 'config.json' is missing.")
 
 def validate_terminology(value, field_name, row_num):
     """Checking if the value matches the allowed terminology."""
