@@ -6,8 +6,9 @@ import json
 import argparse
 from collections import defaultdict
 from qc_checks import (
-    format_roles, lowercase_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology, validate_biomarker_index, check_specimen_pair
+    format_roles, lowercase_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology, validate_biomarker_index, check_specimen_pair, validate_specimen_name
 )
+
 #  logging configuration
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
@@ -83,6 +84,7 @@ def process_row(row, row_num, seen_rows, biomarker_index_map):
     check_required_fields(row, row_num)
     check_conditional_logic(row, row_num)
     check_specimen_pair(row, row_num)
+    validate_specimen_name(row.get('specimen', ''), row.get('specimen_id', ''), row_num)
 
     # Validate terminology for below fields
     validate_terminology(row.get('best_biomarker_role', ''), 'best_biomarker_role', row_num)

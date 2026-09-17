@@ -3,6 +3,8 @@
 import logging
 import re
 import json
+import requests
+
 # Setup logging configuration
 dev_logger = logging.getLogger('dev')
 data_logger = logging.getLogger('data_qc')
@@ -19,14 +21,37 @@ def lowercase_first_word(text, row_num):
     return text
 """
 
+def load_namespace_map() -> dict:
+    """Load namespace map from JSON."""
+    try:
+        with open('namespace_map.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logging.getLogger('dev').warning(f"Could not load namespace_map.json: {e}")
+        return {}
+
+namespace_map = load_namespace_map()
+terminology, known_evidence_sources = load_terminology()
+
 ROLE_ALIASES = {
     "susceptibility": "risk",
 }
+ALL_EXPECTED_HEADERS = [
+    'biomarker_index', 'component_index', 'entity_index', 'biomarker', 'biomarker_controlled_vocab', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
+    'assessed_entity_type', 'best_biomarker_role', 'specimen', 'specimen_id', 'loinc_code', 'evidence_source', 'evidence',
+    'condition', 'condition_id', 'exposure_agent', 'exposure_agent_id', 'tag'
+]
+REQUIRED_FIELDS = [
+    'biomarker', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
+    'assessed_entity_type'
+]
+
+_api_cache: dict[str, str] = {}  # keyed by "resource:accession"
 
 def format_roles(role_field, row_num):
     if ';' in role_field:
         roles = role_field.split(';')
-    else:
+
         roles = [role_field]
 
     formatted_roles = []
@@ -85,13 +110,6 @@ def validate_format(value, field_name, row_num):
             f"Found '{value}', expected 'resource:id' format."
         )
 
-#  required headers
-ALL_EXPECTED_HEADERS = [
-    'biomarker_index', 'component_index', 'entity_index', 'biomarker', 'biomarker_controlled_vocab', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
-    'assessed_entity_type', 'best_biomarker_role', 'specimen', 'specimen_id', 'loinc_code', 'evidence_source', 'evidence',
-    'condition', 'condition_id', 'exposure_agent', 'exposure_agent_id', 'tag'
-]
-
 def check_all_headers(row, row_num):
     """Ensure all expected headers are present in the row; add missing ones as empty."""
     for header in ALL_EXPECTED_HEADERS:
@@ -99,15 +117,9 @@ def check_all_headers(row, row_num):
             row[header] = ''
             logging.getLogger('dev').warning(f"Row {row_num}: Missing header '{header}', added as empty.")
 
-#  required fields
-REQUIRED_FIELDS = [
-    'biomarker', 'assessed_biomarker_entity', 'assessed_biomarker_entity_id',
-    'assessed_entity_type'
-]
-
 def check_required_fields(row, row_num):
     """ all required fields must be present."""
-    for field in REQUIRED_FIELDS:
+    for field in 
         if not row.get(field):
             logging.getLogger('data_qc').warning(f"Row {row_num}: Missing required field '{field}'.")
 
@@ -162,9 +174,6 @@ def load_terminology():
         logging.error("config.json not found.")
         raise SystemExit("Configuration file 'config.json' is missing.")
 
-# Call the load function during setup
-terminology, known_evidence_sources = load_terminology()
-
 def validate_terminology(value, field_name, row_num):
     """Checking if the value matches the allowed terminology."""
     allowed_values = terminology.get(field_name, [])
@@ -174,3 +183,49 @@ def validate_terminology(value, field_name, row_num):
             f"Found '{value}', expected one of {allowed_values}."
         )
 
+def validate_specimen_name(specimen: str, specimen_id: str, row_num: int) -> None:
+    """Validate specimen name against the recommended name from the ontology API.
+    
+    Only runs for resources that have an api_endpoint in namespace_map.json.
+    Results are cached in-memory to avoid redundant API calls across rows.
+    """
+    if not specimen or not specimen_id:
+        return
+    if ':' not in specimen_id:
+        return
+
+    resource, accession = specimen_id.split(':', 1)
+    resource = resource.strip().lower()
+    accession = accession.strip()
+
+    resource_data = namespace_map.get(resource)
+    if not resource_data or not resource_data.get('api_endpoint'):
+        return
+
+    cache_key = f"{resource}:{accession}"
+    if cache_key in _api_cache:
+        recommended_name = _api_cache[cache_key]
+    else:
+        api_url = resource_data['api_endpoint'].replace('{id}', accession)
+        try:
+            response = requests.get(api_url, timeout=10)
+            response.raise_for_status()
+            terms = response.json().get('_embedded', {}).get('terms', [])
+            if not terms:
+                dev_logger.warning(
+                    f"Row {row_num}: No terms found in API response for specimen_id '{specimen_id}'"
+                )
+                return
+            recommended_name = terms[0].get('label', '').lower()
+            _api_cache[cache_key] = recommended_name
+        except Exception as e:
+            dev_logger.warning(
+                f"Row {row_num}: Could not fetch recommended name for '{specimen_id}': {e}"
+            )
+            return
+
+    if specimen.lower() != recommended_name:
+        data_logger.warning(
+            f"Row {row_num}: 'specimen' value '{specimen}' does not match "
+            f"recommended name '{recommended_name}' for '{specimen_id}'."
+        )
