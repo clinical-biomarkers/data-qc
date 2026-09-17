@@ -1,0 +1,497 @@
+{
+  "doid": {
+    "full_name": "disease ontology",
+    "display_name": "Disease Ontology",
+    "api_endpoint": "https://www.disease-ontology.org/api/metadata/DOID:{id}",
+    "rate_limit": null,
+    "url_template": "http://purl.obolibrary.org/obo/DOID_{id}",
+    "cache": "doid_cache.json",
+    "xref": null
+  },
+  "mondo": {
+    "full_name": "mondo disease ontology",
+    "display_name": "MONDO Disease Ontology",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "http://purl.obolibrary.org/obo/MONDO_{id}",
+    "cache": "mondo_cache.json",
+    "xref": null
+  },
+  "edrn": {
+    "full_name": "early detection research network",
+    "display_name": "EDRN",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://edrn.nci.nih.gov/@@dataDispatch?subjectURI=http://edrn.jpl.nasa.gov/bmdb/biomarkers/view/{id}",
+    "cache": "edrn_cache.json",
+    "xref": null
+  },
+  "loinc": {
+    "full_name": "logical observation identifiers names and codes",
+    "display_name": "LOINC",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://loinc.org/{id}",
+    "cache": "loinc_cache.json",
+    "xref": "loinc.json"
+  },
+  "markerdb": {
+    "full_name": "markerdb",
+    "display_name": "MarkerDB",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://markerdb.ca/sequence_variants/{id}",
+    "cache": "markerdb_cache.json",
+    "xref": "markerdb.json"
+  },
+  "meshid": {
+    "full_name": "medical subject headings",
+    "display_name": "MeSH",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://meshb.nlm.nih.gov/record/ui?ui={id}",
+    "cache": null,
+    "xref": "mesh.json"
+  },
+  "mrb": {
+    "full_name": "the microrna database",
+    "display_name": "miRBase",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": null,
+    "cache": "mrb_cache.json",
+    "xref": null
+  },
+  "omx": {
+    "full_name": "oncomx",
+    "display_name": "OncoMX",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://data.oncomx.org/allbiomarkers/biomarker/{id}",
+    "cache": null,
+    "xref": null
+  },
+  "rnac": {
+    "full_name": "rnacentral",
+    "display_name": "RNAcentral",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://rnacentral.org/rna/{id}",
+    "cache": "rnac_cache.json",
+    "xref": "rnac.json"
+  },
+  "upkb": {
+    "full_name": "upkb",
+    "display_name": "UPKB",
+    "api_endpoint": "https://www.ebi.ac.uk/proteins/api/proteins/{id}",
+    "rate_limit": 200,
+    "url_template": "https://www.uniprot.org/uniprotkb/{id}/entry",
+    "cache": "uniprot_cache.json",
+    "xref": "uniprotkb.json"
+  },
+  "uberon": {
+    "full_name": "uber-anatomy ontology",
+    "display_name": "Uberon",
+    "api_endpoint": "https://www.ebi.ac.uk/ols4/api/ontologies/uberon/terms?iri=http://purl.obolibrary.org/obo/UBERON_{id}",
+    "rate_limit": null,
+    "url_template": "http://purl.obolibrary.org/obo/UBERON_{id}",
+    "cache": null,
+    "xref": null
+  },
+  "pubmed": {
+    "full_name": "pubmed",
+    "display_name": "PubMed",
+    "api_endpoint": "library_call",
+    "rate_limit": 10,
+    "url_template": "https://pubmed.ncbi.nlm.nih.gov/{id}",
+    "cache": "pubmed_cache.json",
+    "xref": null
+  },
+  "co": {
+    "full_name": "cell ontology",
+    "display_name": "CL",
+    "api_endpoint": "https://www.ebi.ac.uk/ols4/api/ontologies/cl/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252F{id}",
+    "rate_limit": null,
+    "url_template": "http://purl.obolibrary.org/obo/{id}",
+    "cache": "cell_ontology_cache.json",
+    "xref": "co.json"
+  },
+  "chebi": {
+    "full_name": "chemical entities of biological interest",
+    "display_name": "ChEBI",
+    "api_endpoint": "https://www.ebi.ac.uk/chebi/backend/api/public/compound/{id}",
+    "rate_limit": null,
+    "url_template": "https://www.ebi.ac.uk/chebi/beta/CHEBI:{id}",
+    "cache": "chebi_cache.json",
+    "xref": "chebi.json"
+  },
+  "gwas": {
+    "full_name": "genome-wide association studies",
+    "display_name": "GWAS",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.ebi.ac.uk/gwas/search?query={id}",
+    "cache": null,
+    "xref": null
+  },
+  "clinvar": {
+    "full_name": "clinvar",
+    "display_name": "ClinVar",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.ncbi.nlm.nih.gov/clinvar/variation/{id}",
+    "cache": null,
+    "xref": null
+  },
+  "doi": {
+    "full_name": "digital object identifier",
+    "display_name": "DOI",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://doi.org/{id}",
+    "cache": null,
+    "xref": null
+  },
+  "omim": {
+    "full_name": "online mendelian inheritance in man",
+    "display_name": "OMIM",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.omim.org/entry/{id}",
+    "cache": null,
+    "xref": null
+  },
+  "civic": {
+    "full_name": "clinical interpretation of variants in cancer",
+    "display_name": "CIViC",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://civicdb.org/molecular-profiles/{id}",
+    "cache": null,
+    "xref": null
+  },
+  "wipo": {
+    "full_name": "world intellectural property organization",
+    "display_name": "WIPO",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://patentscope.wipo.int/search/en/detail.jsf?docId={id}",
+    "cache": null,
+    "xref": null
+  },
+  "pro": {
+    "full_name": "protein ontology",
+    "display_name": "PRO",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://proconsortium.org/cgi-bin/entry_pro?id=PR:{id}",
+    "cache": null,
+    "xref": "pro.json"
+  },
+  "dbsnp": {
+    "full_name": "the single nucleotide polymorphism database",
+    "display_name": "dbSNP",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.ncbi.nlm.nih.gov/snp/{id}",
+    "cache": null,
+    "xref": "dbsnp.json"
+  },
+  "hgnc": {
+    "full_name": "hugo gene nomenclature committee",
+    "display_name": "HGNC",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:{id}",
+    "cache": null,
+    "xref": "hgnc.json"
+  },
+  "pccid": {
+    "full_name": "pubchem compound",
+    "display_name": "PubChem Compound",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://pubchem.ncbi.nlm.nih.gov/compound/{id}",
+    "cache": null,
+    "xref": "pubchem_compound.json"
+  },
+  "pcsid": {
+    "full_name": "pubchem substance",
+    "display_name": "PubChem Substance",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://pubchem.ncbi.nlm.nih.gov/substance/{id}",
+    "cache": null,
+    "xref": "pubchem_substance.json"
+  },
+  "pdb": {
+    "full_name": "protein data bank",
+    "display_name": "PDB",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.rcsb.org/structure/{id}",
+    "cache": "pdb_cache.json",
+    "xref": "pdb.json"
+  },
+  "alphafold": {
+    "full_name": "AlphaFold DB",
+    "display_name": "AlphaFold",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://alphafold.ebi.ac.uk/search/text/{id}",
+    "cache": null,
+    "xref": "alphafold.json"
+  },
+  "bgee": {
+    "full_name": "Bgee",
+    "display_name": "Bgee",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.bgee.org/gene/{id}",
+    "cache": null,
+    "xref": "bgee.json"
+  },
+  "biogps": {
+    "full_name": "BioGPS",
+    "display_name": "BioGPS",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "http://biogps.org/#goto=genereport&id={id}",
+    "cache": null,
+    "xref": "biogps.json"
+  },
+  "clingen": {
+    "full_name": "ClinGen",
+    "display_name": "ClinGen",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://search.clinicalgenome.org/kb/genes/HGNC:{id}",
+    "cache": null,
+    "xref": "clingen.json"
+  },
+  "encode": {
+    "full_name": "ENCODE",
+    "display_name": "ENCODE",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.encodeproject.org/genes/{id}",
+    "cache": null,
+    "xref": "encode.json"
+  },
+  "genecards": {
+    "full_name": "GeneCards",
+    "display_name": "GeneCards",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.genecards.org/cgi-bin/carddisp.pl?gene={id}",
+    "cache": null,
+    "xref": "genecards.json"
+  },
+  "genemania": {
+    "full_name": "GeneMANIA",
+    "display_name": "GeneMANIA",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://genemania.org/search/homo-sapiens/{id}",
+    "cache": null,
+    "xref": "genemania.json"
+  },
+  "go": {
+    "full_name": "Gene Ontology",
+    "display_name": "Gene Ontology",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "http://amigo.geneontology.org/amigo/gene_product/UniProtKB:{id}",
+    "cache": null,
+    "xref": "go.json"
+  },
+  "gwas_catalog": {
+    "full_name": "GWAS Catalog",
+    "display_name": "GWAS Catalog",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.ebi.ac.uk/gwas/genes/{id}",
+    "cache": null,
+    "xref": "gwas_catalog.json"
+  },
+  "hgbrowser": {
+    "full_name": "Human Genome Browser",
+    "display_name": "Human Genome Browser",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://genome.ucsc.edu/cgi-bin/hgGene?hgg_gene={id}&hgg_type=knownGene",
+    "cache": null,
+    "xref": "hgbrowser.json"
+  },
+  "hpatlas": {
+    "full_name": "Human Protein Atlas",
+    "display_name": "Human Protein Atlas",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.proteinatlas.org/search/{id}",
+    "cache": null,
+    "xref": "hpatlas.json"
+  },
+  "kegg": {
+    "full_name": "KEGG",
+    "display_name": "KEGG",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.genome.jp/entry/hsa:{id}",
+    "cache": null,
+    "xref": "kegg.json"
+  },
+  "marrvel": {
+    "full_name": "MARRVEL",
+    "display_name": "MARRVEL",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "http://marrvel.org/human/gene/{id}",
+    "cache": null,
+    "xref": "marrvel.json"
+  },
+  "ncbi": {
+    "full_name": "national center for biotechnology information",
+    "display_name": "NCBI",
+    "api_endpoint": "library_call",
+    "rate_limit": 10,
+    "url_template": "https://www.ncbi.nlm.nih.gov/gene/{id}",
+    "cache": "ncbi_cache.json",
+    "xref": "ncbi.json"
+  },
+  "ncbitaxon": {
+    "full_name": "ncbi taxonomy browser",
+    "display_name": "NCBI Taxonomy",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id={id}",
+    "cache": "ncbitaxon_cache.json",
+    "xref": "ncbitaxon.json"
+  },
+  "ncit": {
+    "full_name": "nci thesaurus",
+    "display_name": "NCI Thesaurus",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://evsexplore.semantics.cancer.gov/evsexplore/concept/ncit/{id}",
+    "cache": "ncit_cache.json",
+    "xref": "ncit.json"
+  },
+  "exrna": {
+    "full_name": "exrna atlas",
+    "display_name": "exRNA Atlas",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://exrna-atlas.org/exat/censusResults?identifiers={id}&library={exrna_library}",
+    "cache": null,
+    "xref": "exrna.json"
+  },
+  "geneva": {
+    "full_name": "geneva",
+    "display_name": "GENEVA",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://genevatool.org/gene_table?gene_name={id}",
+    "cache": null,
+    "xref": "geneva.json"
+  },
+  "gtc": {
+    "full_name": "glytoucan",
+    "display_name": "GlyTouCan",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://glytoucan.org/Structures/Glycans/{id}",
+    "cache": null,
+    "xref": "glytoucan.json"
+  },
+  "gtex": {
+    "full_name": "gtex",
+    "display_name": "GTEx",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.gtexportal.org/home/gene/{id}",
+    "cache": null,
+    "xref": "gtex.json"
+  },
+  "idg": {
+    "full_name": "idg reactome portal",
+    "display_name": "IDG Reactome Portal",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://idg.reactome.org/search/{id}",
+    "cache": null,
+    "xref": "idg.json"
+  },
+  "mw": {
+    "full_name": "metabolomics workbench",
+    "display_name": "Metabolomics Workbench",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.metabolomicsworkbench.org/databases/proteome/MGP_detail.php?MGP_ID={id}",
+    "cache": null,
+    "xref": "mw.json"
+  },
+  "opentargets": {
+    "full_name": "Open Targets",
+    "display_name": "Open Targets",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://platform.opentargets.org/target/{id}",
+    "cache": null,
+    "xref": "opentargets.json"
+  },
+  "pcrp": {
+    "full_name": "protein capture reagents program",
+    "display_name": "Protein Capture Reagents Program",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://proteincapture.org/reagent_portal/?hgnc_name_value={id}#proteins",
+    "cache": null,
+    "xref": "pcrp.json"
+  },
+  "pdbekb": {
+    "full_name": "PDBe Knowledge Base",
+    "display_name": "PDBe Knowledge Base",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://www.ebi.ac.uk/pdbe/pdbe-kb/proteins/{id}",
+    "cache": null,
+    "xref": "pdbekb.json"
+  },
+  "pharos": {
+    "full_name": "pharos",
+    "display_name": "Pharos",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://pharos.nih.gov/targets/{id}",
+    "cache": null,
+    "xref": "pharos.json"
+  },
+  "reactome": {
+    "full_name": "reactome",
+    "display_name": "Reactome",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://reactome.org/content/query?q={id}&species=Homo+sapiens&species=Entries+without+species&cluster=true",
+    "cache": null,
+    "xref": "reactome.json"
+  },
+  "sigcom": {
+    "full_name": "sigcom lincs",
+    "display_name": "SigCom LINCS",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://maayanlab.cloud/sigcom-lincs/#/MetadataSearch/Genes?query={%22skip%22:0,%22limit%22:10,%22search%22:[%22{id}%22]}",
+    "cache": null,
+    "xref": "sigcom.json"
+  },
+  "udn": {
+    "full_name": "undiagnosed diseases network",
+    "display_name": "Undiagnosed Diseases Network",
+    "api_endpoint": null,
+    "rate_limit": null,
+    "url_template": "https://undiagnosed.hms.harvard.edu/genes/{id}",
+    "cache": null,
+    "xref": "udn.json"
+  }
+}

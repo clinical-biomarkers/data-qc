@@ -1,27 +1,15 @@
 ## Entry point for the script
-import logging
 import csv
 import glob
 import json
 import argparse
 from collections import defaultdict
+from utils.logging import dev_logger, data_logger, setup_logging
 from qc_checks import (
-    format_roles, lowercase_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology, validate_biomarker_index, check_specimen_pair
+    format_roles, lowercase_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology, validate_biomarker_index, check_specimen_pair, validate_specimen_name
 )
-#  logging configuration
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
-dev_logger = logging.getLogger('dev')
-dev_logger.setLevel(logging.INFO)
-dev_handler = logging.FileHandler('dev_debug.log')
-dev_handler.setFormatter(formatter)
-dev_logger.addHandler(dev_handler)
-
-data_logger = logging.getLogger('data_qc')
-data_logger.setLevel(logging.INFO)
-data_handler = logging.FileHandler('report.log')
-data_handler.setFormatter(formatter)
-data_logger.addHandler(data_handler)
+setup_logging()
 
 def check_id_consistency(id_records):
     '''Rows with same id must have consistent values'''
@@ -39,7 +27,7 @@ def check_id_consistency(id_records):
         for row in rows[1:]:
             for field in fields_to_check:
                 if row[field] != reference[field]:
-                    logging.getLogger('data_qc').warning(
+                    data_logger.warning(
                         f"ID {id}: Inconsistent value for '{field}'. "
                         f"Expected '{reference[field]}', found '{row[field]}'."
                     )
@@ -55,7 +43,7 @@ def check_duplicate_rows(seen_rows, row, row_num):
     row_tuple = tuple(sorted(normalized_row.items(), key=lambda x: x[0] or ''))
 
     if row_tuple in seen_rows:
-        logging.getLogger('data_qc').warning(f"Row {row_num}: Duplicate row found.")
+        data_logger.warning(f"Row {row_num}: Duplicate row found.")
     else:
         seen_rows.add(row_tuple)
 
@@ -64,7 +52,7 @@ def process_row(row, row_num, seen_rows, biomarker_index_map):
         row.get('biomarker_index', ''), row_num, biomarker_index_map
     )
     row['best_biomarker_role'] = format_roles(row.get('best_biomarker_role', ''), row_num)
-    row['specimen'] = lowercase_field(row.get('specimen', ''), 'specimen', row_num)
+    row['specimen'] = row.get('specimen', '').strip().lower()
     row['condition'] = lowercase_field(row.get('condition', ''), 'condition', row_num)
     if not row.get('evidence_source', '').startswith('PubMed:'):
         row['evidence_source'] = title_case_resource(row.get('evidence_source', ''), row_num)
@@ -83,6 +71,9 @@ def process_row(row, row_num, seen_rows, biomarker_index_map):
     check_required_fields(row, row_num)
     check_conditional_logic(row, row_num)
     check_specimen_pair(row, row_num)
+    row['specimen'] = validate_specimen_name(
+        row.get('specimen', ''), row.get('specimen_id', ''), row_num
+    )
 
     # Validate terminology for below fields
     validate_terminology(row.get('best_biomarker_role', ''), 'best_biomarker_role', row_num)
@@ -114,12 +105,12 @@ def main():
             if 'biomarker_controlled_vocab' in fieldnames:
                 idx = fieldnames.index('biomarker_controlled_vocab')
                 fieldnames.insert(idx, 'biomarker')   # insert before its source column
-                logging.getLogger('dev').warning(
+                dev_logger.warning(
                     "'biomarker' column missing; duplicated from 'biomarker_controlled_vocab'."
                 )
             else:
                 fieldnames.append('biomarker')
-                logging.getLogger('dev').warning(
+                dev_logger.warning(
                     "'biomarker' column missing and 'biomarker_controlled_vocab' unavailable; added as empty."
                 )
 
