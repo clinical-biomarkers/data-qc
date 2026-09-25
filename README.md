@@ -10,7 +10,7 @@ The QC preprocessing script performs various quality control checks on the input
 - **Validation** of biomarker roles and assessed entity types against a standard terminology.
 - **Duplicate detection** across rows.
 - **ID consistency checks** if panel biomarkers are not present.
-
+- **DOID merge** — collapses rows that represent the same biomarker finding annotated against a disease and one of its subtypes, keeping the more specific (child/descendant) term and dropping the broader (parent/ancestor) term.
 ---
 
 ## Folder Structure
@@ -20,8 +20,12 @@ main.py: Main script to run QC checks on the dataset.
 
 qc_checks.py: Contains the QC functions used in the main script.
 
+doid_merge.py: Post-processing step that detects and removes redundant condition rows using the Disease Ontology hierarchy. Runs after per-row QC is complete. Caches OLS4 API responses to doid_cache.json to speed up subsequent runs.
+
+doid_cache.json: Auto-generated cache of DOID ancestor lookups. Safe to delete if you want to force a fresh fetch from OLS4.
+
 config.json: Stores terminology and other configurations.
 
-qc_report.log: Log file that stores any issues found during QC checks.
+dev_debug.log and report.log: Log files that stores issues found during QC checks.
 
 README.md: Documentation file (this one).
