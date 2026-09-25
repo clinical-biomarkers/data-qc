@@ -4,9 +4,10 @@ import glob
 import json
 import argparse
 from collections import defaultdict
+from doid_merge import merge_parent_child_condition_rows
 from utils.logging import dev_logger, data_logger, setup_logging
 from qc_checks import (
-    format_roles, lowercase_field, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology, validate_biomarker_index, check_specimen_pair, validate_specimen_name
+    format_roles, title_case_resource , validate_format, check_conditional_logic, check_required_fields, validate_terminology, validate_biomarker_index, check_specimen_pair, validate_specimen_name
 )
 
 setup_logging()
@@ -39,7 +40,6 @@ def normalize_row(row):
 def check_duplicate_rows(seen_rows, row, row_num):
     """Flag duplicate rows."""
     normalized_row = normalize_row(row)  # Normalize the row
-#   row_tuple = tuple(sorted(normalized_row.items()))  # Sort and convert to tuple for comparison
     row_tuple = tuple(sorted(normalized_row.items(), key=lambda x: x[0] or ''))
 
     if row_tuple in seen_rows:
@@ -53,7 +53,6 @@ def process_row(row, row_num, seen_rows, biomarker_index_map):
     )
     row['best_biomarker_role'] = format_roles(row.get('best_biomarker_role', ''), row_num)
     row['specimen'] = row.get('specimen', '').strip().lower()
-    row['condition'] = lowercase_field(row.get('condition', ''), 'condition', row_num)
     if not row.get('evidence_source', '').startswith('PubMed:'):
         row['evidence_source'] = title_case_resource(row.get('evidence_source', ''), row_num)
     
@@ -116,15 +115,21 @@ def main():
 
         writer = csv.DictWriter(outfile, fieldnames=fieldnames, delimiter='\t')
         writer.writeheader()
+
+        all_rows = []
         for row_num, row in enumerate(reader, start=1):
             if 'biomarker' not in row:
                 row['biomarker'] = row.get('biomarker_controlled_vocab', '')
             process_row(row, row_num, seen_rows, biomarker_index_map)
-            writer.writerow(row)
+            all_rows.append(row)
 
-        #If panel biomarkers are not expected, store rows by ID for consistency check
+        all_rows = merge_parent_child_condition_rows(all_rows)
+        for row in all_rows:
+            #If panel biomarkers are not expected, store rows by ID for consistency check
             if not args.panel:
                 id_records[row['biomarker_index']].append(row)
+            writer.writerow(row)
+
     if not args.panel:
         check_id_consistency(id_records)
     print("QC process completed. Check 'report.log' and 'dev_debug.log' for details.")
