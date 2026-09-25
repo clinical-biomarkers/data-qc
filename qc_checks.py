@@ -12,9 +12,15 @@ def lowercase_first_word(text, row_num):
         new_text = text[0].lower() + text[1:]
         dev_logger.warning(f"Row {row_num}: Field 'biomarker' must be corrected to '{new_text}'")
         return new_text
-
-
     return text
+
+def lowercase_field(value, field_name, row_num):
+    if value:
+        new_value = value.lower()
+        if value != new_value:
+            dev_logger.warning(f"Row {row_num}: '{field_name}' must be corrected to '{new_value}'")
+            return new_value
+    return value
 """
 
 def load_namespace_map() -> dict:
@@ -76,14 +82,6 @@ def format_roles(role_field, row_num):
 
     result = ';'.join(formatted_roles)
     return result
-
-def lowercase_field(value, field_name, row_num):
-    if value:
-        new_value = value.lower()
-        if value != new_value:
-            dev_logger.warning(f"Row {row_num}: '{field_name}' must be corrected to '{new_value}'")
-            return new_value
-    return value
 
 def title_case_resource(evidence_source, row_num):
     # Bare numeric string: assume PubMed
