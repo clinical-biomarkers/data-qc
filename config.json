@@ -30,5 +30,5 @@
             "RNA"
         ]
     },
-    "known_evidence_sources": ["PubMed", "EDRN"]
+    "known_evidence_sources": ["ClinVar", "PubMed", "EDRN"]
 }
