@@ -1,6 +1,6 @@
 # Biomarker QC Preprocessing
 
-This repository contains the code for preprocessing and validating biomarker data. The main objective is to ensure data quality through case normalization, duplicate detection, and format validation. The dataset used is from **OncoMX**, which provides information on cancer biomarkers.
+This repository contains the code for preprocessing and validating biomarker data. The main objective is to ensure data quality through case normalization, duplicate detection, and format validation.
 
 ---
 
