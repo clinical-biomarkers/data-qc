@@ -5,6 +5,8 @@ Post-processing step that collapses rows whose condition DOIDs are in an
 ancestor/descendant relationship.  Runs after per-row QC is complete.
 """
 
+import json
+import os
 import urllib.parse
 import requests
 from collections import defaultdict
@@ -12,8 +14,27 @@ from utils.logging import dev_logger, data_logger
 
 _doid_cache: dict[str, set] = {}  # keyed by "doid_ancestors:<DOID:XXXX>"
 
-_MERGE_EXCLUDE_FIELDS = {'condition', 'condition_id', 'biomarker_index', 'legacy_biomarker_id'}
+_CACHE_FILE = 'doid_cache.json'
 
+def _load_cache():
+    if os.path.exists(_CACHE_FILE):
+        try:
+            with open(_CACHE_FILE, 'r', encoding='utf-8') as f:
+                raw = json.load(f)
+            # JSON stores lists, we need sets
+            _doid_cache.update({k: set(v) for k, v in raw.items()})
+        except (json.JSONDecodeError, OSError) as e:
+            dev_logger.warning(f"Could not load DOID cache: {e}")
+
+def _save_cache():
+    try:
+        with open(_CACHE_FILE, 'w', encoding='utf-8') as f:
+            # JSON can't store sets, convert to sorted lists
+            json.dump({k: sorted(v) for k, v in _doid_cache.items()}, f, indent=2)
+    except OSError as e:
+        dev_logger.warning(f"Could not save DOID cache: {e}")
+
+_MERGE_EXCLUDE_FIELDS = {'condition', 'condition_id', 'biomarker_index', 'legacy_biomarker_id'}
 
 def _doid_to_iri(doid_str: str) -> str:
     return "http://purl.obolibrary.org/obo/" + doid_str.replace(":", "_")
@@ -59,6 +80,7 @@ def merge_parent_child_condition_rows(rows: list) -> list:
     (parent / ancestor) term.  The child carries finer-grained biological
     meaning and semantically implies its parents.
     """
+    _load_cache()
     groups: dict = defaultdict(list)
     for idx, row in enumerate(rows):
         key = tuple(
@@ -99,5 +121,7 @@ def merge_parent_child_condition_rows(rows: list) -> list:
             f"DOID merge step dropped {len(to_drop)} row(s) "
             f"across {len(dropped_ids)} unique biomarker_index value(s)."
         )
+
+    _save_cache()
 
     return [row for idx, row in enumerate(rows) if idx not in to_drop]
