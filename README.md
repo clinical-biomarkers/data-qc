@@ -14,7 +14,7 @@ The QC preprocessing script performs various quality control checks on the input
 ---
 
 ## Folder Structure
-dataset/: Folder to store your dataset. The oncomx.tsv file should be placed here.
+dataset/: Folder to store your dataset. Only place one at a time.
 
 main.py: Main script to run QC checks on the dataset.
 
