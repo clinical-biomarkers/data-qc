@@ -102,14 +102,16 @@ def title_case_resource(evidence_source, row_num):
 
     return evidence_source
 
-def validate_format(value, field_name, row_num):
-    """Check if the value follows the 'resource:id' format."""
-    pattern = r"^\w+:[\w-]+$" # Regex for 'resource:id' format
+def validate_format(value, field_name, row_num) -> bool:
+    """Check if the value follows the 'resource:id' format. Returns False if invalid."""
+    pattern = r"^\w+:[\w-]+$"
     if not re.match(pattern, value):
         data_logger.warning(
             f"Row {row_num}: Invalid format for '{field_name}'. "
             f"Found '{value}', expected 'resource:id' format."
         )
+        return False
+    return True
 
 def check_all_headers(row, row_num):
     """Ensure all expected headers are present in the row; add missing ones as empty."""

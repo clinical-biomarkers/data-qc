@@ -47,7 +47,7 @@ def check_duplicate_rows(seen_rows, row, row_num):
     else:
         seen_rows.add(row_tuple)
 
-def process_row(row, row_num, seen_rows, biomarker_index_map):
+def process_row(row, row_num, seen_rows, biomarker_index_map) -> bool:
     row['biomarker_index'] = validate_biomarker_index(
         row.get('biomarker_index', ''), row_num, biomarker_index_map
     )
@@ -56,15 +56,18 @@ def process_row(row, row_num, seen_rows, biomarker_index_map):
     if not row.get('evidence_source', '').startswith('PubMed:'):
         row['evidence_source'] = title_case_resource(row.get('evidence_source', ''), row_num)
     
+    keep = True
+
     # Validate 'assessed_biomarker_entity_id' and 'condition_id' format
     if row.get('assessed_biomarker_entity_id', ''):
-        validate_format(row.get('assessed_biomarker_entity_id', ''), 'assessed_biomarker_entity_id', row_num)
-
+        if not validate_format(row['assessed_biomarker_entity_id'], 'assessed_biomarker_entity_id', row_num):
+            keep = False
     if row.get('condition_id', ''):
-        validate_format(row.get('condition_id', ''), 'condition_id', row_num)
-
+        if not validate_format(row['condition_id'], 'condition_id', row_num):
+            keep = False
     if row.get('evidence_source', ''):
-        validate_format(row.get('evidence_source', ''), 'evidence_source', row_num)
+        if not validate_format(row['evidence_source'], 'evidence_source', row_num):
+            keep = False
 
     # Check for required fields and conditional logic
     check_required_fields(row, row_num)
@@ -80,6 +83,8 @@ def process_row(row, row_num, seen_rows, biomarker_index_map):
 
     # Check for duplicate rows
     check_duplicate_rows(seen_rows, row, row_num)
+
+    return keep
 
 def main():
     parser = argparse.ArgumentParser(description='QC Script for Biomarker Data')
@@ -120,8 +125,8 @@ def main():
         for row_num, row in enumerate(reader, start=1):
             if 'biomarker' not in row:
                 row['biomarker'] = row.get('biomarker_controlled_vocab', '')
-            process_row(row, row_num, seen_rows, biomarker_index_map)
-            all_rows.append(row)
+            if process_row(row, row_num, seen_rows, biomarker_index_map):
+                all_rows.append(row)
 
         all_rows = merge_parent_child_condition_rows(all_rows)
         for row in all_rows:
